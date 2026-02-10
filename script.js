@@ -10,6 +10,14 @@ const heartsToggle = document.getElementById("toggle-hearts");
 const TYPE_TEXT = "Ishq-e-man, will you be my Valentine? 💘";
 let typeIndex = 0;
 
+const caption = document.querySelector(".caption-outside");
+
+function hideCaption() {
+    if (caption) {
+        caption.classList.add("caption-hidden");
+    }
+}
+
 function typeWriter() {
   if (!typeTarget) return;
   if (typeIndex < TYPE_TEXT.length) {
@@ -112,6 +120,7 @@ function dodgeNoButton() {
 }
 
 function onNoClick() {
+  hideCaption();
   noClicks += 1;
 
   if (noClicks === 1) {
@@ -141,6 +150,7 @@ function onNoHover() {
 
 /* ---------------- Yes behavior ---------------- */
 function onYes() {
+  hideCaption();
   showMessage("LESGOOOOOO 💞 See you on the 14th (or whenever you say).");
   img.src = "dance.gif";
   img.classList.add("fade");
