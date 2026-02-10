@@ -15,6 +15,9 @@ const caption = document.querySelector(".caption-outside");
 function hideCaption() {
     if (caption) {
         caption.classList.add("caption-hidden");
+        window.setTimeout(() => {
+            caption.style.display = "none";
+        }, 450);
     }
 }
 
