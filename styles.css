@@ -164,7 +164,6 @@ body {
 
 .caption {
     position: absolute;
-    bottom: 14px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.45);
@@ -176,4 +175,8 @@ body {
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
     max-width: 90%;
     text-align: center;
+}
+
+.caption-top {
+    top: 14px;
 }
