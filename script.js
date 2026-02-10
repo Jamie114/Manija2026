@@ -19,6 +19,7 @@ function typeWriter() {
   }
 }
 
+/* ---------------- Hearts (toggle) ---------------- */
 let heartsOn = true;
 let heartsInterval = null;
 
@@ -33,16 +34,14 @@ function spawnHeart() {
 }
 
 function startHearts() {
-  if (!heartsOn) return;
-  if (heartsInterval) return;
+  if (!heartsOn || heartsInterval) return;
   heartsInterval = window.setInterval(spawnHeart, 700);
 }
 
 function stopHearts() {
-  if (heartsInterval) {
-    window.clearInterval(heartsInterval);
-    heartsInterval = null;
-  }
+  if (!heartsInterval) return;
+  window.clearInterval(heartsInterval);
+  heartsInterval = null;
 }
 
 function setHeartsUI() {
@@ -50,12 +49,53 @@ function setHeartsUI() {
   heartsToggle.textContent = `Hearts: ${heartsOn ? "On" : "Off"}`;
 }
 
+/* ---------------- UI helpers ---------------- */
 function showMessage(text) {
   messageTarget.textContent = text;
   messageTarget.classList.add("show");
 }
 
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n));
+}
+
+/* ---------------- Sly No-behavior ---------------- */
+let noClicks = 0;
+let hoverWarned = false;
+
+function nudgeNoLeftOnce() {
+  // Move the button slightly left the first time she hovers it.
+  // We keep it inside the container.
+  const containerRect = container.getBoundingClientRect();
+
+  // Ensure absolute positioning, but preserve current position if possible
+  const currentLeft = parseFloat(noBtn.style.left || "0");
+  const currentTop = parseFloat(noBtn.style.top || "0");
+
+  noBtn.style.position = "absolute";
+
+  // If it's not been positioned yet, initialize it near its current visual spot
+  if (!noBtn.style.left && !noBtn.style.top) {
+    // Put it roughly where it appears (near center row)
+    noBtn.style.left = "55%";
+    noBtn.style.top = "120px";
+  }
+
+  const btnRect = noBtn.getBoundingClientRect();
+  const maxLeft = containerRect.width - btnRect.width - 10;
+
+  // Nudge left by ~40px
+  const newLeft = clamp(
+    (isNaN(currentLeft) ? (containerRect.width * 0.55) : currentLeft) - 40,
+    10,
+    maxLeft
+  );
+
+  noBtn.style.left = newLeft + "px";
+}
+
 function dodgeNoButton() {
+  // Full dodge inside the card
   const rect = container.getBoundingClientRect();
   const btnRect = noBtn.getBoundingClientRect();
   const padding = 10;
@@ -71,13 +111,35 @@ function dodgeNoButton() {
   noBtn.style.top = y + "px";
 }
 
-function onNo() {
-  img.src = "gun.gif";
-  showMessage("Nice try 😌 you already know the answer.");
+function onNoClick() {
+  noClicks += 1;
+
+  if (noClicks === 1) {
+    // First click: sly confirmation
+    img.src = "your_image.jpg"; // keep it cute on first "no"
+    showMessage("Hmm… are you *sure* sure? 😌");
+    noBtn.textContent = "Still no";
+    yesBtn.textContent = "Okay fine yes 💘";
+    signature.style.opacity = "0.7";
+    return;
+  }
+
+  // Second+ click: unleash the dodge + your existing gag image
+  img.src = "gun.gif"; // optional: replace with something cuter if you want
+  showMessage("Nice try 😈 the 'No' is decorative. Keep trying.");
   dodgeNoButton();
   signature.style.opacity = "0.4";
 }
 
+function onNoHover() {
+  if (hoverWarned) return;
+  hoverWarned = true;
+
+  showMessage("I see you hovering 'No'… 🤨");
+  nudgeNoLeftOnce();
+}
+
+/* ---------------- Yes behavior ---------------- */
 function onYes() {
   showMessage("LESGOOOOOO 💞 See you on the 14th (or whenever you say).");
   img.src = "dance.gif";
@@ -89,10 +151,13 @@ function onYes() {
   signature.remove();
 }
 
+/* ---------------- init ---------------- */
 function init() {
   typeWriter();
 
-  noBtn.addEventListener("click", onNo);
+  noBtn.addEventListener("click", onNoClick);
+  noBtn.addEventListener("mouseenter", onNoHover); // hover warning + nudge
+
   yesBtn.addEventListener("click", onYes);
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
