@@ -164,10 +164,10 @@ body {
     font-size: 15px;
     font-weight: 600;
     opacity: 0.9;
+    transition: opacity 0.4s ease;
 }
 
 /* Caption fade-out */
 .caption-hidden {
     opacity: 0;
-    transition: opacity 0.4s ease;
 }
